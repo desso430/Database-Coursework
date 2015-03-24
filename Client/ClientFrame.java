@@ -10,29 +10,29 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import DatabaseObjects.TrafficForUser;
+import DatabaseObjects.User;
 
 
 public class ClientFrame extends JFrame {
 	private static final long serialVersionUID = -1633776426365690884L;
 	private JPanel contentPane = new JPanel();
 	private static JTextArea statisticsArea = new JTextArea();
-	private JComboBox selectBox = new JComboBox();
-//	private String[] options = new String[] {"All paid users", "All not paid uers", "Biggest internet traffic"};
+	private static JComboBox<String> selectBox = new JComboBox<String>();
 
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String[] users) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					ClientFrame frame = new ClientFrame(users);
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
+	public static void main(String[] users) {				
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						try {
+							ClientFrame frame = new ClientFrame(users);
+							frame.setVisible(true);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				});					
 	}
 
 	/**
@@ -51,9 +51,9 @@ public class ClientFrame extends JFrame {
 		setSelectBox(users);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	private void setSelectBox(String[] users) {
-		selectBox.setModel(new DefaultComboBoxModel(users));
+		selectBox.setModel(new DefaultComboBoxModel<String>(users));
 		selectBox.setBounds(31, 32, 202, 20);
 		contentPane.add(selectBox);
 	}
@@ -69,7 +69,8 @@ public class ClientFrame extends JFrame {
 											
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Client.SendRequest(SQLStatements.SELECT_STATISTIC_FOR_USER + (selectBox.getSelectedIndex()+1));	
+				ArrayList<TrafficForUser> info = Client.getUserStatistic(selectBox.getSelectedIndex() + 1);
+				printStatistic(info);
 			 }			
 		});
 	}
@@ -85,7 +86,8 @@ public class ClientFrame extends JFrame {
 													
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				EditUser.main(Client.socketIn, Client.socketOut, (selectBox.getSelectedIndex()+1));	
+				User user = Client.getUser(selectBox.getSelectedIndex()+1);
+				EditUser.main(user);	
 			}			
 		});
 	}
@@ -99,13 +101,16 @@ public class ClientFrame extends JFrame {
 		statisticsArea.setEditable(false);
 	}
 	
-//	private void printStatistic(String statistic) {
-//		if(statistic != null && !statistic.equals("")) {
-//			statisticsArea.append(statistic);
-//		}
-//	}
+	private static void clearStatisticsArea() {
+		statisticsArea.setText("");
+	}
+	
+	public static void updateSelectBox(String[] users) {
+		selectBox.setModel(new DefaultComboBoxModel<String>(users));
+	}
 	
 	static void printStatistic(ArrayList<TrafficForUser> info) {
+		 clearStatisticsArea();
 		for(Iterator<TrafficForUser> it = info.iterator(); it.hasNext();) {
 			TrafficForUser user = it.next();
 			statisticsArea.append(" Date: " + user.getDate() + "    Sent data: " + user.getSentData()  + "    Receive data: " + user.getReceiveData() + "\n");

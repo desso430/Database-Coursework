@@ -4,42 +4,34 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-
 import DatabaseObjects.User;
-import Request.Request;
+
 
 public class EditUser extends JFrame {
 
+	private static final long serialVersionUID = 9122314338585468372L;
 	private JPanel contentPane;
 	private static JTextField addressField;
 	private static JTextField nameField;
 	private static JTextField EGNField;
 	private static JTextField phoneField;
-	private ObjectInputStream socketIn = null;
-	private ObjectOutputStream socketOut = null;
 
 	/**
 	 * Launch the application.
 	 */
-	public static void main(ObjectInputStream socketIn, ObjectOutputStream socketOut, int user_id) {
+	public static void main(User user) {
 		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					socketOut.writeObject(new Request(SQLStatements.SELECT_USER + user_id));
-					EditUser frame = new EditUser(socketIn, socketOut, user_id);
+					EditUser frame = new EditUser(user);
 					frame.setVisible(true);	
-					setToolTipText(socketIn);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -50,7 +42,7 @@ public class EditUser extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public EditUser(ObjectInputStream socketIn, ObjectOutputStream socketOut, int user_id) {
+	public EditUser(User user) {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 374, 398);
 		contentPane = new JPanel();
@@ -61,9 +53,6 @@ public class EditUser extends JFrame {
 		JPanel panel = new JPanel();
 		contentPane.add(panel, BorderLayout.CENTER);
 		panel.setLayout(null);
-		
-		this.socketIn = socketIn;
-		this.socketOut = socketOut;
 		
 		EGNField = new JTextField();
 		EGNField.setBounds(39, 120, 281, 20);
@@ -90,16 +79,12 @@ public class EditUser extends JFrame {
 															
 			@Override
 			public void actionPerformed(ActionEvent e) {
-			  String name =	nameField.getText();
-			  String egn = EGNField.getText();
-			  String phone = phoneField.getText();
-			  String address = addressField.getText();
-			  try {
-				socketOut.writeObject(new User(user_id, egn, name, phone, address));
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-			  System.exit(0);
+				user.setName(nameField.getText());
+				user.setEGN(EGNField.getText());
+				user.setPhone(phoneField.getText());
+				user.setAddress(addressField.getText());
+				Client.updateUser(user);
+			  setVisible(false);
 		  }			
 		});
 		
@@ -124,18 +109,14 @@ public class EditUser extends JFrame {
 		addressField.setBounds(39, 255, 281, 20);
 		panel.add(addressField);
 		addressField.setColumns(10);
+		setToolTipText(user);
 	}
 
-	private static void setToolTipText(ObjectInputStream socketIn) {
-		try {
-			User user = (User) socketIn.readObject();
-			nameField.setText(user.getName());
-			EGNField.setText(user.getEGN());
-			phoneField.setText(user.getPhone());
-			addressField.setText(user.getAddress());
-		} catch (IOException | ClassNotFoundException e1) {
-			e1.printStackTrace();
-		}
+	private static void setToolTipText(User user) {
+		nameField.setText(user.getName());
+		EGNField.setText(user.getEGN());
+		phoneField.setText(user.getPhone());
+		addressField.setText(user.getAddress());
 	}
 	
 	

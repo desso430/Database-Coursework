@@ -1,11 +1,16 @@
 package Server;
 
 import java.io.IOException;
+
 import Request.Request;
+
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+
+import Client.RequestCodes;
 import DatabaseObjects.*;
+
 import java.sql.*;
 
 
@@ -25,17 +30,18 @@ public class ClientThred implements Runnable {
 	@Override
 	public void run() {			
 		try {
-			
-			request = (Request) socketIn.readObject();
-			socketOut.writeObject(getUsers(getData(request.getQuery())));
-			
-			request = (Request) socketIn.readObject();
-			socketOut.writeObject(getStatisticForUser(getData(request.getQuery())));
-			
-			request = (Request) socketIn.readObject();
-			socketOut.writeObject(getUser(getData(request.getQuery())));
-			
-			updateUser((User) socketIn.readObject());
+			while(true) {
+				request = (Request) socketIn.readObject();
+				
+				if(request.getRequestCode().equals(RequestCodes.CODE_FOR_ALL_USERS))
+					socketOut.writeObject(getUsers(getData(SQLStatements.SELECT_ALL_USERS)));
+				if(request.getRequestCode().equals(RequestCodes.CODE_FOR_USER_STATISTIC))
+					socketOut.writeObject(getStatisticForUser(getData(SQLStatements.SELECT_STATISTIC_FOR_USER + request.getId()))); 
+				if(request.getRequestCode().equals(RequestCodes.CODE_FOR_ONE_USER)) {
+					socketOut.writeObject(getUser(getData(SQLStatements.SELECT_USER + request.getId())));
+					updateUser((User) socketIn.readObject());
+				}		
+			}
 		} catch (ClassNotFoundException | IOException e) {
 			e.printStackTrace();
 		}
@@ -53,16 +59,14 @@ public class ClientThred implements Runnable {
 	}
 	
 	private void updateUser(User user) {
-	    String EDIT_USER_STATEMENT = " UPDATE users "
-             	                   + " SET name = ? , egn = ? , phone = ? , address = ? "
-               	                   + " WHERE user_id = ?";
 		try {
-			PreparedStatement statement = databaseConnection.prepareStatement(EDIT_USER_STATEMENT);
+			PreparedStatement statement = databaseConnection.prepareStatement(SQLStatements.EDIT_USER_STATEMENT);
 			statement.setString(1, user.getName());
 			statement.setString(2, user.getEGN());
 			statement.setString(3, user.getPhone());
 			statement.setString(4, user.getAddress());
 			statement.setInt(5, user.getUser_id());
+			statement.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
