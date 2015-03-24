@@ -21,17 +21,18 @@ public class Client {
 	public static void main(String[] args) {
 	 try {
 		try {
+			ClientFrame.writeProgramStatus(" Connecting to server...");
 			connection = new Socket(host, port);
 		  } catch (IOException e) {
-			System.err.println(" Can't connect to surver");
+			ClientFrame.writeProgramStatus(" Can't connect to surver");
 	        return;
 		  }
 		
 		setStreams();
-    	connect(socketIn, socketOut);
+    	authorization(socketIn, socketOut);
     	ClientFrame.main(getAllUsers());
 	 } catch (Exception e) {
-		 e.printStackTrace();
+		 ClientFrame.writeProgramStatus(" Error: " + e.getMessage());
 	 }
 	}
 
@@ -47,11 +48,11 @@ public class Client {
 		socketOut.flush();
 	}
 	
-	private static void SendRequest(String requst, int id) {
+	static void SendRequest(String requst, int id) {
 		try {
 			socketOut.writeObject(new Request(requst, id));
 		} catch (IOException e) {
-			e.printStackTrace();
+			ClientFrame.writeProgramStatus(" Error: " + e.getMessage());
 		}
 	}	
 	
@@ -61,7 +62,7 @@ public class Client {
 		try {
 			info = (TrafficInformation) socketIn.readObject();
 		} catch (ClassNotFoundException | IOException e) {
-			e.printStackTrace();
+			ClientFrame.writeProgramStatus(" Error: " + e.getMessage());
 		}
        return info.getList();	
 	}
@@ -72,7 +73,7 @@ public class Client {
 		try {
 			user = (User) socketIn.readObject();
 		} catch (ClassNotFoundException | IOException e) {
-			e.printStackTrace();
+			ClientFrame.writeProgramStatus(" Error: " + e.getMessage());
 		}
 		return user;		
 	}
@@ -82,19 +83,30 @@ public class Client {
 			socketOut.writeObject(user);
 			ClientFrame.updateSelectBox(getAllUsers());
 		} catch (IOException | ClassNotFoundException e) {
-			e.printStackTrace();
+			ClientFrame.writeProgramStatus(" Error: " + e.getMessage());
 		}
 	}
 	
-	private static void connect(ObjectInputStream socketIn, ObjectOutputStream socketOut) {
+	static void addNewUser(User user) {
+		try {
+			socketOut.writeObject(user);
+			ClientFrame.updateSelectBox(getAllUsers());
+		} catch (IOException | ClassNotFoundException e) {
+			ClientFrame.writeProgramStatus(" Error: " + e.getMessage());
+		}
+	}
+	
+	private static void authorization(ObjectInputStream socketIn, ObjectOutputStream socketOut) {
 		try {			
+		    ClientFrame.writeProgramStatus(" Waitnig for authorization from server...");
 			CodeForAuthorization code = (CodeForAuthorization) socketIn.readObject();	// gets the encrypted code from server for authorization
 			String encryptedCode = new Decrypt(code.getCode()).getEncryptedText();
 			socketOut.writeObject(new CodeForAuthorization(encryptedCode));  // send decrypted code to server for authorization
 			Authorization answer = (Authorization) socketIn.readObject();
 			
+			ClientFrame.writeProgramStatus(answer.getAuthorizationInformation());
 		} catch (ClassNotFoundException | IOException e) {
 			e.printStackTrace();
 		}
-	}
+    } 
 }

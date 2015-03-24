@@ -4,18 +4,16 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-
 import DatabaseObjects.User;
 
 
-public class EditUser extends JFrame {
+public class AddNewUser extends JFrame {
 
 	private static final long serialVersionUID = 9122314338585468372L;
 	private JPanel contentPane;
@@ -27,12 +25,11 @@ public class EditUser extends JFrame {
 	/**
 	 * Launch the application.
 	 */
-	public static void main(User user) {
-		
+	public static void main() {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					EditUser frame = new EditUser(user);
+					AddNewUser frame = new AddNewUser();
 					frame.setVisible(true);	
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -44,7 +41,7 @@ public class EditUser extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public EditUser(User user) {
+	public AddNewUser() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 374, 398);
 		contentPane = new JPanel();
@@ -71,22 +68,22 @@ public class EditUser extends JFrame {
 		panel.add(nameField);
 		nameField.setColumns(10);
 		
-		JButton EditButton = new JButton("Save");
-		EditButton.setBounds(126, 303, 89, 23);
-		panel.add(EditButton);
+		JButton addButton = new JButton(" Add User ");
+		addButton.setBounds(119, 303, 118, 23);
+		panel.add(addButton);
 		
 		
 		// add behaviour
-		EditButton.addActionListener(new ActionListener() {
+		addButton.addActionListener(new ActionListener() {
 															
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				user.setName(nameField.getText());
-				user.setEGN(EGNField.getText());
-				user.setPhone(phoneField.getText());
-				user.setAddress(addressField.getText());
-				Client.updateUser(user);
-				ClientFrame.writeProgramStatus(" Update user information successfully! ");
+				String egn = EGNField.getText();
+				String name = nameField.getText();	
+				String phone = phoneField.getText();
+				String address = addressField.getText();
+				Client.addNewUser(new User(egn, name, phone, address));
+				ClientFrame.writeProgramStatus(" Add new user successfully! ");
 			  setVisible(false);
 		  }			
 		});
@@ -112,16 +109,5 @@ public class EditUser extends JFrame {
 		addressField.setBounds(39, 255, 281, 20);
 		panel.add(addressField);
 		addressField.setColumns(10);
-		setToolTipText(user);
 	}
-
-	private static void setToolTipText(User user) {
-		nameField.setText(user.getName());
-		EGNField.setText(user.getEGN());
-		phoneField.setText(user.getPhone());
-		addressField.setText(user.getAddress());
-	}
-	
-	
-
 }

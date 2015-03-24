@@ -49,10 +49,10 @@ public class Server implements Runnable {
 		socketOut.writeObject(new CodeForAuthorization(code.getEncryptedCode()));
 		CodeForAuthorization decryptedCode = (CodeForAuthorization) socketIn.readObject();
 		if(decryptedCode.getCode().equalsIgnoreCase(code.getDecryptedCode())) {
-		   socketOut.writeObject(new AuthorizedAccess(" Connect successfuly!"));
+		   socketOut.writeObject(new Authorization(" Connected successfully to server!", true));
 		   new Thread(new ClientThred(pool.getConnection(), socketIn, socketOut)).start();
 		} else {
-		   socketOut.writeObject(new UnauthorizedAccess(" Wrong decrypted code!"));
+		   socketOut.writeObject(new Authorization(" Connection to server was unsuccessfully!", false));
 		}
 	}
 

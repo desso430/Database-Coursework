@@ -8,5 +8,6 @@ public final class RequestCodes {
 	public static final String CODE_FOR_ALL_USERS = "S110";
 	public static final String CODE_FOR_USER_STATISTIC = "S301";
 	public static final String CODE_FOR_ONE_USER = "S101";
+	public static final String CODE_FOR_ADD_NEW_USER = "I101";
 
 }

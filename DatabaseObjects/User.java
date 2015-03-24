@@ -19,6 +19,13 @@ public class User implements Serializable {
 		address = "";
 	}
 
+	public User(String EGN, String name, String phone, String address) {
+		this.EGN = EGN;
+		this.name = name;
+		this.phone = phone;
+		this.address = address;
+	}
+	
 	public User(int user_id, String EGN, String name, String phone, String address) {
 		this.user_id = user_id;
 		this.EGN = EGN;

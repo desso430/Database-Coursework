@@ -8,4 +8,6 @@ public final class SQLStatements {
                                             + " SET name = ? , egn = ? , phone = ? , address = ? "
                                             + " WHERE user_id = ? ";
 	
+	static final String ADD_NEW_USER_STATEMENT = " INSERT INTO users(egn, name, phone, address) "
+			                                    +" VALUES (?, ?, ?, ?) ";	
 }

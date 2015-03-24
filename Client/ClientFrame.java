@@ -16,9 +16,10 @@ import DatabaseObjects.User;
 public class ClientFrame extends JFrame {
 	private static final long serialVersionUID = -1633776426365690884L;
 	private JPanel contentPane = new JPanel();
-	private static JTextArea statisticsArea = new JTextArea();
 	private static JComboBox<String> selectBox = new JComboBox<String>();
-
+	private static JTextArea programStatusArea = new JTextArea();
+	private static JTextArea statisticsArea = new JTextArea();
+	
 	/**
 	 * Launch the application.
 	 */
@@ -43,25 +44,60 @@ public class ClientFrame extends JFrame {
 		setBounds(100, 100, 566, 630);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
-		contentPane.setLayout(null);
 		
-		setStatisticsArea();	
-		setEditButton();	
-		setShowButton();
+		
+		setProgramStatus();
 		setSelectBox(users);
+		setShowButton();
+		setEditButton();				
+		setAddButton();
+		setStatisticsArea();		
 	}
 
 
-	private void setSelectBox(String[] users) {
+	private void setSelectBox(String[] users) {		
+		JLabel SelectUserLabel = new JLabel("Select User: ");
+		SelectUserLabel.setBounds(295, 35, 91, 14);
+		contentPane.add(SelectUserLabel);
+		selectBox.setBounds(296, 51, 226, 20);
 		selectBox.setModel(new DefaultComboBoxModel<String>(users));
-		selectBox.setBounds(31, 32, 202, 20);
-		contentPane.add(selectBox);
+		contentPane.add(selectBox);	
+	}
+
+	private void setAddButton() {
+		JButton addButton = new JButton(" Add Use ");
+		addButton.setBounds(343, 175, 138, 23);
+		contentPane.add(addButton);
+		
+		// add behaviour
+		addButton.addActionListener(new ActionListener() {
+													
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Client.SendRequest(RequestCodes.CODE_FOR_ADD_NEW_USER, 0);
+				AddNewUser.main();		
+			}			
+		});
+	}
+
+	private void setProgramStatus() {
+		contentPane.setLayout(null);
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(10, 51, 276, 147);
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		contentPane.add(scrollPane);	
+		JLabel ProgramStatusLabel = new JLabel("Program Status: ");
+		ProgramStatusLabel.setBounds(10, 35, 99, 14);
+		contentPane.add(ProgramStatusLabel);
+		programStatusArea.setWrapStyleWord(true);
+		programStatusArea.setEditable(false);
+		scrollPane.setViewportView(programStatusArea);
 	}
 
 	private void setShowButton() {
 		JButton showButton = new JButton("Show statistic");
+		showButton.setBounds(343, 86, 138, 23);
 		showButton.setToolTipText("press to show statistic...");
-		showButton.setBounds(263, 31, 127, 23);
 		contentPane.add(showButton);
 		
 		// add behaviour
@@ -77,8 +113,8 @@ public class ClientFrame extends JFrame {
 
 	private void setEditButton() {
 		JButton editButton = new JButton("Edit user\r\n");
+		editButton.setBounds(343, 130, 138, 23);
 		editButton.setToolTipText("press to edit user info...\r\n");
-		editButton.setBounds(413, 31, 127, 23);
 		contentPane.add(editButton);
 		
 		// add behaviour
@@ -94,11 +130,14 @@ public class ClientFrame extends JFrame {
 
 	private void setStatisticsArea() {
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(10, 82, 530, 498);
+		scrollPane.setBounds(10, 229, 530, 351);
 		contentPane.add(scrollPane);
-		
-		scrollPane.setViewportView(statisticsArea);
+		JLabel UserStatisticsLabel = new JLabel("User Statistics: ");
+		UserStatisticsLabel.setBounds(10, 209, 99, 14);
+		contentPane.add(UserStatisticsLabel);
+		statisticsArea.setWrapStyleWord(true);
 		statisticsArea.setEditable(false);
+		scrollPane.setViewportView(statisticsArea);
 	}
 	
 	private static void clearStatisticsArea() {
@@ -108,6 +147,13 @@ public class ClientFrame extends JFrame {
 	public static void updateSelectBox(String[] users) {
 		selectBox.setModel(new DefaultComboBoxModel<String>(users));
 	}
+	
+	public static void writeProgramStatus(String status) {
+		if(status != null && !status.equals("")) {
+			programStatusArea.append(status + "\n");
+		}
+	}
+	
 	
 	static void printStatistic(ArrayList<TrafficForUser> info) {
 		 clearStatisticsArea();
